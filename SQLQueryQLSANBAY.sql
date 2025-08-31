@@ -62,5 +62,28 @@ WHERE MAMB IN ('747','777')
 GROUP BY CHUNGNHAN.MANV,TEN
 HAVING COUNT(*) = 2
 
+
 --6.	Tạo truy vấn đưa ra những máy bay chưa có trong bảng CHUNGNHAN
+SELECT MAMB FROM MAYBAY
+EXCEPT 
+SELECT DISTINCT MAMB FROM CHUNGNHAN 
+
+-- 7 .Tạo truy vấn đưa ra những nhân viên có lương cao hơn lương của nhân viên ‘NV03’
+SELECT * 
+FROM NHANVIEN
+WHERE LUONG > (SELECT LUONG FROM NHANVIEN WHERE MANV = 'NV03')
+
+--8.	Tạo truy vấn đưa ra những nhân viên đã lái được từ 3 loại máy bay trở lên ngồm các thông tin: manv, ten
+SELECT CHUNGNHAN.MANV,TEN
+FROM NHANVIEN JOIN CHUNGNHAN ON NHANVIEN.MANV = CHUNGNHAN.MANV
+GROUP BY CHUNGNHAN.MANV,TEN
+HAVING COUNT(*) = 3
+
+--9.	 Tạo thủ tục đưa ra thông tin của máy bay được lái bởi 1 nhân viên bất kỳ
+--ĐƯA RA THÔNG TIN CỦA NHÂN VIÊN MÃ NV02
+SELECT CHUNGNHAN.MAMB,SOHIEU,TAMBAY
+FROM NHANVIEN 
+JOIN CHUNGNHAN ON NHANVIEN.MANV = CHUNGNHAN.MANV
+JOIN MAYBAY ON CHUNGNHAN.MAMB = MAYBAY.MAMB
+WHERE NHANVIEN.MANV = 'NV02'
 
