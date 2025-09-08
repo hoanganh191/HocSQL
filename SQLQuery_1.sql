@@ -171,5 +171,60 @@ JOIN (SELECT LOP,MAX(DIEMLAN1) AS DIEMCAONHAT
         FROM DIEM JOIN SINHVIEN ON DIEM.MASV = SINHVIEN.MASV
         GROUP BY LOP) KQ_LOP ON KQ_LOP.LOP = SINHVIEN.LOP AND DIEM.DIEMLAN1 = KQ_LOP.DIEMCAONHAT 
 
+--Tạo thủ tục đưa ra tổng điểm các môn của một sinh viên bất kỳ
+create proc tongDiemCacMon(@maSV varchar(5),@tongDiem float output) 
+as 
+begin
+    select @tongDiem = sum(DIEMLAN1) from DIEM where MASV = @maSV and DIEMLAN1 is not null
+    PRINT N'Tổng điểm của ' + @maSV + N' là: ' + CONVERT(VARCHAR(2), @tongDiem);
+end
 
+   --Có nếu không có output thì k cần exec , còn lại là phải có
+DECLARE @tong FLOAT;
+EXECUTE tongDiemCacMon '00113', @tong OUTPUT;
+
+
+
+--Đưa ra tổng điểm của một môn có mã là CSDL và CTDL của một sinh viên bất kỳ
+create proc tongCsvaCT(@maSV varchar(5))
+as
+begin
+    declare @tongCsCt float
+    select @tongCsCt = sum(DIEMLAN1) from DIEM where MASV = @maSV and MAMH in ('CSDL','CTDL') and MAMH is not null
+    print 'Tong diem cua CSDL và CTDL cua' +  convert(varchar(5),@maSV) + ' là : ' + convert(varchar(2),@tongCsCt)
+end
+tongCsvaCT '00113'
+
+--So sánh tổng điểm các môn của 2 sinh viên bất kỳ
+create proc soSanhTong(@maSv1 varchar(5), @maSv2 varchar(5))
+as 
+begin
+    declare @tongsv1 float
+    declare @tongsv2 float
+    execute tongDiemCacMon @maSv1, @tongsv1 output
+    execute tongDiemCacMon @maSv2, @tongsv2 output
+    if @tongsv1 = @tongsv2 print N'Sinh viên ' + convert(varchar(5),@maSv1) + N' bằng ' + N'Sinh viên ' + convert(varchar(5),@maSv2)
+    else if @tongsv1 > @tongsv2 print N'Sinh viên ' + convert(varchar(5),@maSv1) + N' lớn hơn ' + N'Sinh viên ' + convert(varchar(5),@maSv2)
+    else print N'Sinh viên ' + convert(varchar(5),@maSv1) + N' nhỏ hơn ' + N'Sinh viên ' + convert(varchar(5),@maSv2)
+end
+
+soSanhTong '00111','00113'
+
+--So sánh điểm của môn bất kỳ của 2 sinh viên bất kỳ
+create proc soSanh2Mon(@maSv1 varchar(5),@maMon1 varchar(5), @maSv2 varchar(5),@maMon2 varchar(5))
+as
+begin
+    declare @diemMon1 float
+    declare @diemMon2 float
+    select @diemMon1 = DIEMLAN1 from DIEM WHERE MAMH = @maMon1 
+    select @diemMon2 = DIEMLAN1 from DIEM WHERE MAMH = @maMon2
+    if @diemMon1 = @diemMon2 print N'Môn ' + convert(varchar(5),@maMon1) + N' của ' + convert(varchar(5),@maSv1) + 
+        N' bằng ' + N' Môn ' + convert(varchar(5),@maMon2) + N' của ' + convert(varchar(5),@maSv2) 
+    else if @diemMon1 > @diemMon2 print N'Môn ' + convert(varchar(5),@maMon1) + N' của ' + convert(varchar(5),@maSv1) + 
+        N' lớn hơn ' + N' Môn ' + convert(varchar(5),@maMon2) + N' của ' + convert(varchar(5),@maSv2) 
+    else print N'Môn ' + convert(varchar(5),@maMon1) + N' của ' + convert(varchar(5),@maSv1) + 
+        N' bằng ' + N' Môn ' + convert(varchar(5),@maMon2) + N' của ' + convert(varchar(5),@maSv2)
+end
+
+soSanh2Mon '00111','TRR','00113','CSDL'
 
