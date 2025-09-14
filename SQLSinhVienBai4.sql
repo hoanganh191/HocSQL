@@ -78,3 +78,14 @@ HAVING COUNT(MaMon) >= 2
 
 --7.	Đưa ra những môn có số tín chỉ lớn hơn số tín chỉ của môn ‘Giải tích 1’
 SELECT * FROM MONHOC WHERE SoTinChi > (SELECT SoTinChi FROM MONHOC WHERE TenMon = N'Giải tích 1')
+
+--8.	Tạo Thủ tục để thông báo tổng số sinh viên sinh viên đăng ký môn học theo từng môn
+create proc kqDangKyHoc
+as
+begin 
+select DANGKYHOC.MaMon,TenMon,COUNT(*) AS TONGSV
+from DANGKYHOC JOIN MONHOC ON DANGKYHOC.MaMon = MONHOC.MaMon
+GROUP BY DANGKYHOC.MaMon,TenMon
+end
+
+kqDangKyHoc
