@@ -89,3 +89,19 @@ GROUP BY DANGKYHOC.MaMon,TenMon
 end
 
 kqDangKyHoc
+
+--9.	Tạo trigger để đảm bảo bảng MonHoc không vượt quá 4 môn, nếu chèn vượt quá thì đưa ra thông báo: ‘Số môn học không được quá 4 môn’
+CREATE TRIGGER SO_MON_HOC
+ON MONHOC
+FOR INSERT
+AS
+	DECLARE @soMonHienTai int
+	SELECT @soMonHienTai = COUNT(*) FROM MONHOC
+	IF(@soMonHienTai > 4)
+		BEGIN 
+			PRINT N'KHÔNG ĐƯỢC THÊM QUÁ 4 MÔN'
+			ROLLBACK TRANSACTION
+		END
+
+INSERT INTO MONHOC VALUES ('BM1',N'BẢO MẬT 1',3)
+INSERT INTO MONHOC VALUES ('BM2',N'BẢO MẬT 2',1)

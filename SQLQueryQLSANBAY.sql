@@ -93,6 +93,15 @@ end
 
 ttMayBay 'NV04'
 
+--10.	 Tạo trigger để khi chèn thêm dữ liệu vào bảng Nhanvien sẽ có thông báo tổng số dòng trong bảng là bao nhiêu
+CREATE TRIGGER CHEN_DU_LIEU
+on NHANVIEN
+FOR INSERT
+AS
+	SELECT COUNT(*) AS SO_DONG_HIEN_TAI FROM NHANVIEN
+
+INSERT INTO NHANVIEN VALUES ('NV25',N'NGUYỄN SHEN',10000000)
+
 
 
 

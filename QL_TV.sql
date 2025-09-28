@@ -68,4 +68,33 @@ WHERE TENSACH = N'Giải tích 1' AND MONTH(NGAYMUON) = 2
 SELECT * FROM SACH
 WHERE MASACH NOT IN (SELECT MASACH FROM PHIEUMUON)
 
+--7.	Tạo thủ tục nhập vào 2 mã sách. Đưa ra thông báo xem 2 cuốn sách này có cùng năm xuất bản không.
+create proc soSanhNam(@maSach1 varchar(3), @maSach2 varchar(3))
+as
+begin
+	declare @nam1 int
+	declare @nam2 int
+	select @nam1 = NAMXB FROM SACH WHERE MASACH = @maSach1
+	select @nam2 = NAMXB FROM SACH WHERE MASACH = @maSach2
+	IF @nam1 > @nam2 print N'Quyển thứ nhất xuất bản trước quyển thứ 2'
+	else if @nam1 = @nam2 print N'Quyển thứ nhất xuất bản cùng năm quyển thứ 2'
+	else print N'Quyển thứ nhất xuất bản sau quyển thứ 2'
+end
 
+soSanhNam 'S02','S01'
+
+--8.	Viết trigger để khi chèn 1 dòng dữ liệu vào bảng phieumuon thì số lượng trong bảng Sach sẽ tự động được cập nhật
+CREATE TRIGGER THEM_PHIEU_MUON
+ON PHIEUMUON
+FOR INSERT
+AS
+	UPDATE SACH
+	SET SACH.SOLUONG = SACH.SOLUONG - I.SOLUONG
+	FROM SACH 
+	JOIN inserted I ON SACH.MASACH = I.MASACH
+
+
+SELECT * FROM SACH
+SET DATEFORMAT DMY
+INSERT INTO PHIEUMUON VALUES
+('DG01','S05','1/5/2024','3/12/2024',1)
